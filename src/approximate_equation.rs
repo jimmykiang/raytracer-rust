@@ -1,4 +1,4 @@
-use crate::tuple::Point;
+use crate::tuple::{Point, Vector};
 
 pub const EPSILON: f64 = 1e-5;
 
@@ -17,6 +17,15 @@ pub trait ApproximateEq<T = Self> {
 }
 
 impl ApproximateEq for Point {
+    fn approx_eq(&self, other: &Self) -> bool {
+        self.x().approx_eq(&other.x())
+            && self.y().approx_eq(&other.y())
+            && self.z().approx_eq(&other.z())
+            && self.w().approx_eq(&other.w())
+    }
+}
+
+impl ApproximateEq for Vector {
     fn approx_eq(&self, other: &Self) -> bool {
         self.x().approx_eq(&other.x())
             && self.y().approx_eq(&other.y())

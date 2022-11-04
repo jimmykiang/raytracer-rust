@@ -34,6 +34,12 @@ impl From<vecmath::Vector4<f64>> for Point {
     }
 }
 
+impl From<vecmath::Vector4<f64>> for Vector {
+    fn from([x, y, z, _]: Vector4<f64>) -> Self {
+        Vector::new(x, y, z)
+    }
+}
+
 // Overload Point + Vector.
 impl Add<Vector> for Point {
     type Output = Point;
@@ -52,12 +58,24 @@ impl Add<Point> for Vector {
     }
 }
 
-#[derive(Clone, Copy)]
+impl Add<Vector> for Vector {
+    type Output = Vector;
+
+    fn add(self, rhs: Vector) -> Self::Output {
+        vec4_add(self.0, rhs.0).into()
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
 pub struct Vector(Vector4<f64>);
 
 impl Vector {
     pub fn new(x: f64, y: f64, z: f64) -> Self {
         Vector([x, y, z, 0.0])
+    }
+
+    pub fn x(&self) -> f64 {
+        self.0[0]
     }
 
     pub fn y(&self) -> f64 {
@@ -98,8 +116,15 @@ mod tests {
         assert_eq!(v.w(), 0.0);
     }
 
-    // Required for comparing equality and aproximating using Epsilon.
+    // Required for comparing equality of Point and approximating using Epsilon.
     impl PartialEq for Point {
+        fn eq(&self, other: &Self) -> bool {
+            self.approx_eq(other)
+        }
+    }
+
+    // Required for comparing equality of Vector and approximating using Epsilon.
+    impl PartialEq for Vector {
         fn eq(&self, other: &Self) -> bool {
             self.approx_eq(other)
         }
@@ -112,5 +137,6 @@ mod tests {
         let v = Vector::new(-2.0, 3.0, 1.0);
         assert_eq!(p + v, Point::new(1.0, 1.0, 6.0));
         assert_eq!(v + p, Point::new(1.0, 1.0, 6.0));
+        assert_eq!(v + v, Vector::new(-4.0, 6.0, 2.0));
     }
 }
