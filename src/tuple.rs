@@ -2,7 +2,7 @@ use std::ops::Add;
 use vecmath::{vec4_add, Vector4};
 
 // Point is a rust tuple.
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Point(Vector4<f64>);
 
 impl Point {
@@ -27,12 +27,14 @@ impl Point {
     }
 }
 
+// Implement to enable conversion from vecmath::Vector4 into() Point.
 impl From<vecmath::Vector4<f64>> for Point {
     fn from([x, y, z, _]: Vector4<f64>) -> Self {
         Point::new(x, y, z)
     }
 }
 
+// Overload Point + Vector.
 impl Add<Vector> for Point {
     type Output = Point;
 
@@ -41,6 +43,16 @@ impl Add<Vector> for Point {
     }
 }
 
+// Overload Vector + Point.
+impl Add<Point> for Vector {
+    type Output = Point;
+
+    fn add(self, rhs: Point) -> Self::Output {
+        vec4_add(self.0, rhs.0).into()
+    }
+}
+
+#[derive(Clone, Copy)]
 pub struct Vector(Vector4<f64>);
 
 impl Vector {
@@ -99,5 +111,6 @@ mod tests {
         let p = Point::new(3.0, -2.0, 5.0);
         let v = Vector::new(-2.0, 3.0, 1.0);
         assert_eq!(p + v, Point::new(1.0, 1.0, 6.0));
+        assert_eq!(v + p, Point::new(1.0, 1.0, 6.0));
     }
 }
