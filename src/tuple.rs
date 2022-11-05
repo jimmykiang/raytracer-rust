@@ -6,8 +6,9 @@ use vecmath::{vec4_add, vec4_scale, vec4_sub, Vector4};
 pub struct Point(Vector4<f64>);
 
 impl Point {
-    pub fn new(x: f64, y: f64, z: f64) -> Self {
-        Point([x, y, z, 1.0])
+    // new Point and enable conversion into f64.
+    pub fn new(x: impl Into<f64>, y: impl Into<f64>, z: impl Into<f64>) -> Self {
+        Point([x.into(), y.into(), z.into(), 1.0])
     }
 
     pub fn x(&self) -> f64 {
@@ -108,6 +109,7 @@ impl Neg for Vector {
     }
 }
 
+// Overload Vector * f64.
 impl<T: Into<f64>> Mul<T> for Vector {
     type Output = Vector;
 
@@ -120,8 +122,9 @@ impl<T: Into<f64>> Mul<T> for Vector {
 pub struct Vector(Vector4<f64>);
 
 impl Vector {
-    pub fn new(x: f64, y: f64, z: f64) -> Self {
-        Vector([x, y, z, 0.0])
+    // new Vector and enable conversion into f64.
+    pub fn new(x: impl Into<f64>, y: impl Into<f64>, z: impl Into<f64>) -> Self {
+        Vector([x.into(), y.into(), z.into(), 0.0])
     }
 
     pub fn x(&self) -> f64 {
@@ -154,6 +157,11 @@ mod tests {
         assert_eq!(p.y(), -4.2);
         assert_eq!(p.z(), 3.1);
         assert_eq!(p.w(), 1.0);
+        let p_1 = Point::new(4, 5, 6);
+        assert_eq!(p_1.0[3], 1.0);
+        assert_eq!(p_1.x(), 4.0);
+        assert_eq!(p_1.y(), 5.0);
+        assert_eq!(p_1.z(), 6.0);
     }
 
     // A tuple with w=0 is a vector.
@@ -164,6 +172,11 @@ mod tests {
         assert_eq!(v.y(), -4.2);
         assert_eq!(v.z(), 3.1);
         assert_eq!(v.w(), 0.0);
+        let v_1 = Vector::new(7, 88, 9);
+        assert_eq!(v_1.0[3], 0.0);
+        assert_eq!(v_1.x(), 7.0);
+        assert_eq!(v_1.y(), 88.0);
+        assert_eq!(v_1.z(), 9.0);
     }
 
     // Required by assert_eq for comparing equality of Point and approximating using Epsilon.
