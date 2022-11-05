@@ -87,6 +87,14 @@ impl Sub<Vector> for Point {
     }
 }
 
+impl Sub<Vector> for Vector {
+    type Output = Vector;
+
+    fn sub(self, rhs: Vector) -> Self::Output {
+        vec4_sub(self.0, rhs.0).into()
+    }
+}
+
 #[derive(Debug, Clone, Copy)]
 pub struct Vector(Vector4<f64>);
 
@@ -161,7 +169,7 @@ mod tests {
         assert_eq!(v + v, Vector::new(-4.0, 6.0, 2.0));
     }
 
-    // Subtracting two points
+    // Subtracting two points.
     #[test]
     fn substract_tuples() {
         let p1 = Point::new(3.0, 2.0, 1.0);
@@ -176,5 +184,13 @@ mod tests {
         let p = Point::new(3.0, 2.0, 1.0);
         let v = Vector::new(5.0, 6.0, 7.0);
         assert_eq!(p - v, Point::new(-2.0, -4.0, -6.0));
+    }
+
+    // Subtracting a vector from the zero vector.
+    #[test]
+    fn sub_vec_from_zero() {
+        let zero = Vector::new(0.0, 0.0, 0.0);
+        let v = Vector::new(1.0, -2.0, 3.0);
+        assert_eq!(zero - v, Vector::new(-1.0, 2.0, -3.0));
     }
 }
