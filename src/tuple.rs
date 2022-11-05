@@ -251,4 +251,12 @@ mod tests {
         assert_eq!(a * 3.5, Vector::new(3.5, -7.0, 10.5));
         assert_eq!(3.5 * a, Vector::new(3.5, -7, 10.5))
     }
+
+    // Multiplying a tuple by a fraction.
+    #[test]
+    fn multiply_tuple_fraction() {
+        let a = Vector::new(1, -2, 3);
+        assert_eq!(a * 0.5, Vector::new(0.5, -1, 1.5));
+        assert_eq!(0.5 * a, Vector::new(0.5, -1, 1.5));
+    }
 }
