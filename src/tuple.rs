@@ -1,4 +1,4 @@
-use std::ops::{Add, Sub};
+use std::ops::{Add, Neg, Sub};
 use vecmath::{vec4_add, vec4_sub, Vector4};
 
 // Point is a rust tuple.
@@ -59,6 +59,7 @@ impl Add<Point> for Vector {
     }
 }
 
+// Overload Vector + Vector.
 impl Add<Vector> for Vector {
     type Output = Vector;
 
@@ -67,6 +68,7 @@ impl Add<Vector> for Vector {
     }
 }
 
+// OverLoad Point - Point.
 impl Sub<Point> for Point {
     type Output = Vector;
 
@@ -79,6 +81,7 @@ impl Sub<Point> for Point {
     }
 }
 
+// Overload Point - Vector.
 impl Sub<Vector> for Point {
     type Output = Point;
 
@@ -87,11 +90,21 @@ impl Sub<Vector> for Point {
     }
 }
 
+// Overload Vector - Vector.
 impl Sub<Vector> for Vector {
     type Output = Vector;
 
     fn sub(self, rhs: Vector) -> Self::Output {
         vec4_sub(self.0, rhs.0).into()
+    }
+}
+
+// Overload unary negation for Vector.
+impl Neg for Vector {
+    type Output = Vector;
+
+    fn neg(self) -> Self::Output {
+        Vector::new(-self.x(), -self.y(), -self.z())
     }
 }
 
@@ -192,5 +205,12 @@ mod tests {
         let zero = Vector::new(0.0, 0.0, 0.0);
         let v = Vector::new(1.0, -2.0, 3.0);
         assert_eq!(zero - v, Vector::new(-1.0, 2.0, -3.0));
+    }
+
+    // Negating a tuple.
+    #[test]
+    fn negating_tuple() {
+        let a = Vector::new(1.0, -2.0, 3.0);
+        assert_eq!(-a, Vector::new(-1.0, 2.0, -3.0));
     }
 }
