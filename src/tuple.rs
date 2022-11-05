@@ -118,6 +118,15 @@ impl<T: Into<f64>> Mul<T> for Vector {
     }
 }
 
+// Overload f64 * Vector.
+impl Mul<Vector> for f64 {
+    type Output = Vector;
+
+    fn mul(self, rhs: Vector) -> Self::Output {
+        vec4_scale(rhs.0, self).into()
+    }
+}
+
 #[derive(Debug, Clone, Copy)]
 pub struct Vector(Vector4<f64>);
 
@@ -240,5 +249,6 @@ mod tests {
     fn multiply_scalar_tuple() {
         let a = Vector::new(1.0, -2.0, 3.0);
         assert_eq!(a * 3.5, Vector::new(3.5, -7.0, 10.5));
+        assert_eq!(3.5 * a, Vector::new(3.5, -7, 10.5))
     }
 }
