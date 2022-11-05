@@ -1,5 +1,5 @@
-use std::ops::{Add, Neg, Sub};
-use vecmath::{vec4_add, vec4_sub, Vector4};
+use std::ops::{Add, Mul, Neg, Sub};
+use vecmath::{vec4_add, vec4_scale, vec4_sub, Vector4};
 
 // Point is a rust tuple.
 #[derive(Debug, Clone, Copy)]
@@ -108,6 +108,14 @@ impl Neg for Vector {
     }
 }
 
+impl<T: Into<f64>> Mul<T> for Vector {
+    type Output = Vector;
+
+    fn mul(self, rhs: T) -> Self::Output {
+        vec4_scale(self.0, rhs.into()).into()
+    }
+}
+
 #[derive(Debug, Clone, Copy)]
 pub struct Vector(Vector4<f64>);
 
@@ -212,5 +220,12 @@ mod tests {
     fn negating_tuple() {
         let a = Vector::new(1.0, -2.0, 3.0);
         assert_eq!(-a, Vector::new(-1.0, 2.0, -3.0));
+    }
+
+    // Multiplying a tuple by a scalar.
+    #[test]
+    fn multiply_scalar_tuple() {
+        let a = Vector::new(1.0, -2.0, 3.0);
+        assert_eq!(a * 3.5, Vector::new(3.5, -7.0, 10.5));
     }
 }
