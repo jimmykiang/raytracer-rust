@@ -312,4 +312,11 @@ mod tests {
         let v = Vector::new(1, 2, 3);
         assert_eq!(v.magnitude(), 14f64.sqrt());
     }
+
+    // Computing the magnitude of vector(-1, -2, -3).
+    #[test]
+    fn magnitude_vector_negative_123() {
+        let v = Vector::new(-1, -2, -3);
+        assert_eq!(v.magnitude(), 14.0f64.sqrt());
+    }
 }
