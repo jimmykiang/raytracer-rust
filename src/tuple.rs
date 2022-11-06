@@ -1,5 +1,5 @@
 use std::ops::{Add, Div, Mul, Neg, Sub};
-use vecmath::{vec4_add, vec4_len, vec4_scale, vec4_sub, Vector4};
+use vecmath::{vec4_add, vec4_len, vec4_normalized, vec4_scale, vec4_sub, Vector4};
 
 // Point is a rust tuple.
 #[derive(Debug, Clone, Copy)]
@@ -169,6 +169,11 @@ impl Vector {
     pub fn magnitude(&self) -> f64 {
         vec4_len(self.0)
     }
+
+    // Normalize Vector.
+    pub fn normalize(&self) -> Self {
+        Vector(vec4_normalized(self.0))
+    }
 }
 
 #[cfg(test)]
@@ -318,5 +323,12 @@ mod tests {
     fn magnitude_vector_negative_123() {
         let v = Vector::new(-1, -2, -3);
         assert_eq!(v.magnitude(), 14.0f64.sqrt());
+    }
+
+    // Normalizing vector(4, 0, 0) gives (1, 0, 0).
+    #[test]
+    fn normalize_vector_400() {
+        let v = Vector::new(4, 0, 0);
+        assert_eq!(v.normalize(), Vector::new(1, 0, 0));
     }
 }
