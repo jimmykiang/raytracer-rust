@@ -1,5 +1,5 @@
 use std::ops::{Add, Div, Mul, Neg, Sub};
-use vecmath::{vec4_add, vec4_len, vec4_normalized, vec4_scale, vec4_sub, Vector4};
+use vecmath::{vec4_add, vec4_dot, vec4_len, vec4_normalized, vec4_scale, vec4_sub, Vector4};
 
 // Point is a rust tuple.
 #[derive(Debug, Clone, Copy)]
@@ -174,6 +174,11 @@ impl Vector {
     pub fn normalize(&self) -> Self {
         Vector(vec4_normalized(self.0))
     }
+
+    // Dot product of: Vector * Vector.
+    pub fn dot(&self, rhs: &Self) -> f64 {
+        vec4_dot(self.0, rhs.0)
+    }
 }
 
 #[cfg(test)]
@@ -347,5 +352,13 @@ mod tests {
     fn magnitude_nomalized_vector() {
         let v = Vector::new(1, 2, 3);
         assert_eq!(v.normalize().magnitude(), 1.0);
+    }
+
+    // The dot product of two tuples.
+    #[test]
+    fn dot_product() {
+        let a = Vector::new(1, 2, 3);
+        let b = Vector::new(2, 3, 4);
+        assert_eq!(a.dot(&b), 20.0);
     }
 }
