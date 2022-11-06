@@ -298,4 +298,11 @@ mod tests {
         let v = Vector::new(0, 1, 0);
         assert_eq!(v.magnitude(), 1.0);
     }
+
+    // Computing the magnitude of vector(0, 0, 1).
+    #[test]
+    fn magnitude_vector_001() {
+        let v = Vector::new(0, 1, 0);
+        assert_eq!(v.magnitude(), 1.0);
+    }
 }
