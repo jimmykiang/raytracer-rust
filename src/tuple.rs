@@ -1,4 +1,4 @@
-use std::ops::{Add, Mul, Neg, Sub};
+use std::ops::{Add, Div, Mul, Neg, Sub};
 use vecmath::{vec4_add, vec4_scale, vec4_sub, Vector4};
 
 // Point is a rust tuple.
@@ -124,6 +124,15 @@ impl Mul<Vector> for f64 {
 
     fn mul(self, rhs: Vector) -> Self::Output {
         vec4_scale(rhs.0, self).into()
+    }
+}
+
+// Overload Vector / f64.
+impl<T: Into<f64>> Div<T> for Vector {
+    type Output = Vector;
+
+    fn div(self, rhs: T) -> Self::Output {
+        vec4_scale(self.0, 1.0 / rhs.into()).into()
     }
 }
 
@@ -258,5 +267,12 @@ mod tests {
         let a = Vector::new(1, -2, 3);
         assert_eq!(a * 0.5, Vector::new(0.5, -1, 1.5));
         assert_eq!(0.5 * a, Vector::new(0.5, -1, 1.5));
+    }
+
+    // Dividing a tuple by a scalar.
+    #[test]
+    fn divide_tuple_scalar() {
+        let a = Vector::new(1, -2, 3);
+        assert_eq!(a / 2.0, Vector::new(0.5, -1, 1.5));
     }
 }
