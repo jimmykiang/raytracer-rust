@@ -1,12 +1,12 @@
 use std::ops::{Add, Div, Mul, Neg, Sub};
-use vecmath::{vec4_add, vec4_scale, vec4_sub, Vector4};
+use vecmath::{vec4_add, vec4_len, vec4_scale, vec4_sub, Vector4};
 
 // Point is a rust tuple.
 #[derive(Debug, Clone, Copy)]
 pub struct Point(Vector4<f64>);
 
 impl Point {
-    // new Point and enable conversion into f64.
+    // New Point and enable conversion into f64.
     pub fn new(x: impl Into<f64>, y: impl Into<f64>, z: impl Into<f64>) -> Self {
         Point([x.into(), y.into(), z.into(), 1.0])
     }
@@ -140,7 +140,7 @@ impl<T: Into<f64>> Div<T> for Vector {
 pub struct Vector(Vector4<f64>);
 
 impl Vector {
-    // new Vector and enable conversion into f64.
+    // New Vector and enable conversion into f64.
     pub fn new(x: impl Into<f64>, y: impl Into<f64>, z: impl Into<f64>) -> Self {
         Vector([x.into(), y.into(), z.into(), 0.0])
     }
@@ -159,6 +159,11 @@ impl Vector {
 
     pub fn w(&self) -> f64 {
         self.0[3]
+    }
+
+    // Magnitude of Vector.
+    pub fn magnitude(&self) -> f64 {
+        vec4_len(self.0)
     }
 }
 
@@ -274,5 +279,12 @@ mod tests {
     fn divide_tuple_scalar() {
         let a = Vector::new(1, -2, 3);
         assert_eq!(a / 2.0, Vector::new(0.5, -1, 1.5));
+    }
+
+    // Computing the magnitude of vector(1, 0, 0).
+    #[test]
+    fn magnitude_vector_100() {
+        let v = Vector::new(1, 0, 0);
+        assert_eq!(v.magnitude(), 1.0);
     }
 }
