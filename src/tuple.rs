@@ -341,4 +341,11 @@ mod tests {
             Vector::new(1.0 / 14f64.sqrt(), 2.0 / 14f64.sqrt(), 3.0 / 14f64.sqrt())
         );
     }
+
+    // The magnitude of a normalized vector.
+    #[test]
+    fn magnitude_nomalized_vector() {
+        let v = Vector::new(1, 2, 3);
+        assert_eq!(v.normalize().magnitude(), 1.0);
+    }
 }
