@@ -110,7 +110,11 @@ impl Neg for Vector {
 }
 
 // Overload Vector * f64.
-impl<T: Into<f64>> Mul<T> for Vector {
+// impl<T: Into<f64>> Mul<T> for Vector {
+impl<T> Mul<T> for Vector
+where
+    T: Into<f64>,
+{
     type Output = Vector;
 
     fn mul(self, rhs: T) -> Self::Output {
@@ -285,6 +289,13 @@ mod tests {
     #[test]
     fn magnitude_vector_100() {
         let v = Vector::new(1, 0, 0);
+        assert_eq!(v.magnitude(), 1.0);
+    }
+
+    // Computing the magnitude of vector(0, 1, 0).
+    #[test]
+    fn magnitude_vector_010() {
+        let v = Vector::new(0, 1, 0);
         assert_eq!(v.magnitude(), 1.0);
     }
 }
