@@ -1,5 +1,7 @@
 use std::ops::{Add, Div, Mul, Neg, Sub};
-use vecmath::{vec4_add, vec4_dot, vec4_len, vec4_normalized, vec4_scale, vec4_sub, Vector4};
+use vecmath::{
+    vec3_cross, vec4_add, vec4_dot, vec4_len, vec4_normalized, vec4_scale, vec4_sub, Vector4,
+};
 
 // Point is a rust tuple.
 #[derive(Debug, Clone, Copy)]
@@ -178,6 +180,12 @@ impl Vector {
     // Dot product of: Vector * Vector.
     pub fn dot(&self, rhs: &Self) -> f64 {
         vec4_dot(self.0, rhs.0)
+    }
+
+    // Cross product: Vector x Vector.
+    pub fn cross(&self, rhs: &Self) -> Self {
+        let cross = vec3_cross([self.x(), self.y(), self.z()], [rhs.x(), rhs.y(), rhs.z()]);
+        Vector::new(cross[0], cross[1], cross[2])
     }
 }
 
@@ -360,5 +368,14 @@ mod tests {
         let a = Vector::new(1, 2, 3);
         let b = Vector::new(2, 3, 4);
         assert_eq!(a.dot(&b), 20.0);
+    }
+
+    // The cross product of two vectors.
+    #[test]
+    fn cross_product() {
+        let a = Vector::new(1, 2, 3);
+        let b = Vector::new(2, 3, 4);
+        assert_eq!(a.cross(&b), Vector::new(-1, 2, -1));
+        assert_eq!(b.cross(&a), Vector::new(1, -2, 1));
     }
 }
