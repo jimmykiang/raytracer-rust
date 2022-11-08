@@ -1,3 +1,4 @@
+use crate::color::Color;
 use crate::tuple::{Point, Vector};
 
 pub const EPSILON: f64 = 1e-5;
@@ -31,5 +32,13 @@ impl ApproximateEq for Vector {
             && self.y().approx_eq(&other.y())
             && self.z().approx_eq(&other.z())
             && self.w().approx_eq(&other.w())
+    }
+}
+
+impl ApproximateEq for Color {
+    fn approx_eq(&self, other: &Self) -> bool {
+        self.red().approx_eq(&other.red())
+            && self.green().approx_eq(&other.green())
+            && self.blue().approx_eq(&other.blue())
     }
 }
