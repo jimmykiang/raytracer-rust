@@ -1,6 +1,6 @@
-use std::ops::{Add, Sub};
+use std::ops::{Add, Mul, Sub};
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct Color {
     red: f64,
     green: f64,
@@ -39,6 +39,14 @@ impl Color {
             self.blue - rhs.blue(),
         )
     }
+
+    fn scale(&self, scalar: f64) -> Color {
+        Color::new(
+            self.red() * scalar,
+            self.green() * scalar,
+            self.blue() * scalar,
+        )
+    }
 }
 
 // Overload Color + Color.
@@ -56,6 +64,36 @@ impl Sub for Color {
 
     fn sub(self, rhs: Self) -> Self::Output {
         Color::sub(&self, &rhs)
+    }
+}
+
+// Overload f64 * Color.
+impl<T> Mul<T> for Color
+where
+    T: Into<f64>,
+{
+    type Output = Self;
+
+    fn mul(self, rhs: T) -> Self::Output {
+        Color::scale(&self, rhs.into())
+    }
+}
+
+// Overload Color * f64.
+impl Mul<Color> for f64 {
+    type Output = Color;
+
+    fn mul(self, rhs: Color) -> Self::Output {
+        Color::scale(&rhs, self)
+    }
+}
+
+// Overload Color * i32.
+impl Mul<Color> for i32 {
+    type Output = Color;
+
+    fn mul(self, rhs: Color) -> Self::Output {
+        Color::scale(&rhs, self as f64)
     }
 }
 
@@ -94,5 +132,13 @@ mod tests {
         let c1 = Color::new(0.9, 0.6, 0.75);
         let c2 = Color::new(0.7, 0.1, 0.25);
         assert_eq!(c1 - c2, Color::new(0.2, 0.5, 0.5));
+    }
+
+    // Multiplying a color by a scalar.
+    #[test]
+    fn multiply_color_scalar() {
+        let c = Color::new(0.2, 0.3, 0.4);
+        assert_eq!(c * 2, Color::new(0.4, 0.6, 0.8));
+        assert_eq!(2 * c, Color::new(0.4, 0.6, 0.8));
     }
 }
