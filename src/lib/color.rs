@@ -57,7 +57,7 @@ impl Color {
     }
 }
 
-// Overload Color + Color.
+/// Overload Color + Color.
 impl Add for Color {
     type Output = Color;
 
@@ -66,7 +66,7 @@ impl Add for Color {
     }
 }
 
-// Overload Color - Color.
+/// Overload Color - Color.
 impl Sub for Color {
     type Output = Self;
 
@@ -75,7 +75,7 @@ impl Sub for Color {
     }
 }
 
-// Overload f64 * Color.
+/// Overload f64 * Color.
 impl<T> Mul<T> for Color
 where
     T: Into<f64>,
@@ -87,7 +87,7 @@ where
     }
 }
 
-// Overload Color * f64.
+/// Overload Color * f64.
 impl Mul<Color> for f64 {
     type Output = Color;
 
@@ -96,7 +96,7 @@ impl Mul<Color> for f64 {
     }
 }
 
-// Overload Color * i32.
+/// Overload Color * i32.
 impl Mul<Color> for i32 {
     type Output = Color;
 
@@ -105,7 +105,7 @@ impl Mul<Color> for i32 {
     }
 }
 
-// Overload Color * Color.
+/// Overload Color * Color.
 impl Mul for Color {
     type Output = Self;
 
@@ -119,14 +119,14 @@ mod tests {
     use super::*;
     use crate::approximate_equation::ApproximateEq;
 
-    // Required by assert_eq for comparing equality of Color and approximating using Epsilon.
+    /// Required by assert_eq for comparing equality of Color and approximating using Epsilon.
     impl PartialEq for Color {
         fn eq(&self, other: &Self) -> bool {
             self.approx_eq(other)
         }
     }
 
-    // Colors are (red, green, blue) tuples.
+    /// Colors are (red, green, blue) tuples.
     #[test]
     fn colors() {
         let c = Color::new(-0.5, 0.4, 1.7);
@@ -135,7 +135,7 @@ mod tests {
         assert_eq!(c.blue(), 1.7);
     }
 
-    // Adding colors.
+    /// Adding colors.
     #[test]
     fn add_colors() {
         let c1 = Color::new(0.9, 0.6, 0.75);
@@ -143,7 +143,7 @@ mod tests {
         assert_eq!(c1 + c2, Color::new(1.6, 0.7, 1.0));
     }
 
-    // Subtracting colors.
+    /// Subtracting colors.
     #[test]
     fn substract_color() {
         let c1 = Color::new(0.9, 0.6, 0.75);
@@ -151,7 +151,7 @@ mod tests {
         assert_eq!(c1 - c2, Color::new(0.2, 0.5, 0.5));
     }
 
-    // Multiplying a color by a scalar.
+    /// Multiplying a color by a scalar.
     #[test]
     fn multiply_color_scalar() {
         let c = Color::new(0.2, 0.3, 0.4);
@@ -159,7 +159,7 @@ mod tests {
         assert_eq!(2 * c, Color::new(0.4, 0.6, 0.8));
     }
 
-    // Multiplying colors.
+    /// Multiplying colors.
     #[test]
     fn multiply_color_color() {
         let c1 = Color::new(1, 0.2, 0.4);

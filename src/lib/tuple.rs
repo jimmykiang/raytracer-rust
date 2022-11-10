@@ -3,12 +3,12 @@ use vecmath::{
     vec3_cross, vec4_add, vec4_dot, vec4_len, vec4_normalized, vec4_scale, vec4_sub, Vector4,
 };
 
-// Point is a rust tuple.
+/// Point is a rust tuple.
 #[derive(Debug, Clone, Copy)]
 pub struct Point(Vector4<f64>);
 
 impl Point {
-    // New Point and enable conversion into f64.
+    /// New Point and enable conversion into f64.
     pub fn new(x: impl Into<f64>, y: impl Into<f64>, z: impl Into<f64>) -> Self {
         Point([x.into(), y.into(), z.into(), 1.0])
     }
@@ -30,21 +30,21 @@ impl Point {
     }
 }
 
-// Implement to enable conversion from vecmath::Vector4 into() Point.
+/// Implement to enable conversion from vecmath::Vector4 into() Point.
 impl From<vecmath::Vector4<f64>> for Point {
     fn from([x, y, z, _]: Vector4<f64>) -> Self {
         Point::new(x, y, z)
     }
 }
 
-// Implement to enable conversion from vecmath::Vector4 into() Vector.
+/// Implement to enable conversion from vecmath::Vector4 into() Vector.
 impl From<vecmath::Vector4<f64>> for Vector {
     fn from([x, y, z, _]: Vector4<f64>) -> Self {
         Vector::new(x, y, z)
     }
 }
 
-// Overload Point + Vector.
+/// Overload Point + Vector.
 impl Add<Vector> for Point {
     type Output = Point;
 
@@ -53,7 +53,7 @@ impl Add<Vector> for Point {
     }
 }
 
-// Overload Vector + Point.
+/// Overload Vector + Point.
 impl Add<Point> for Vector {
     type Output = Point;
 
@@ -62,7 +62,7 @@ impl Add<Point> for Vector {
     }
 }
 
-// Overload Vector + Vector.
+/// Overload Vector + Vector.
 impl Add<Vector> for Vector {
     type Output = Vector;
 
@@ -71,7 +71,7 @@ impl Add<Vector> for Vector {
     }
 }
 
-// OverLoad Point - Point.
+/// OverLoad Point - Point.
 impl Sub<Point> for Point {
     type Output = Vector;
 
@@ -84,7 +84,7 @@ impl Sub<Point> for Point {
     }
 }
 
-// Overload Point - Vector.
+/// Overload Point - Vector.
 impl Sub<Vector> for Point {
     type Output = Point;
 
@@ -93,7 +93,7 @@ impl Sub<Vector> for Point {
     }
 }
 
-// Overload Vector - Vector.
+/// Overload Vector - Vector.
 impl Sub<Vector> for Vector {
     type Output = Vector;
 
@@ -102,7 +102,7 @@ impl Sub<Vector> for Vector {
     }
 }
 
-// Overload unary negation for Vector.
+/// Overload unary negation for Vector.
 impl Neg for Vector {
     type Output = Vector;
 
@@ -111,8 +111,8 @@ impl Neg for Vector {
     }
 }
 
-// Overload Vector * f64.
-// impl<T: Into<f64>> Mul<T> for Vector {
+/// Overload Vector * f64.
+/// impl<T: Into<f64>> Mul<T> for Vector {
 impl<T> Mul<T> for Vector
 where
     T: Into<f64>,
@@ -124,7 +124,7 @@ where
     }
 }
 
-// Overload f64 * Vector.
+/// Overload f64 * Vector.
 impl Mul<Vector> for f64 {
     type Output = Vector;
 
@@ -133,7 +133,7 @@ impl Mul<Vector> for f64 {
     }
 }
 
-// Overload Vector / f64.
+/// Overload Vector / f64.
 impl<T: Into<f64>> Div<T> for Vector {
     type Output = Vector;
 
@@ -146,7 +146,7 @@ impl<T: Into<f64>> Div<T> for Vector {
 pub struct Vector(Vector4<f64>);
 
 impl Vector {
-    // New Vector and enable conversion into f64.
+    /// New Vector and enable conversion into f64.
     pub fn new(x: impl Into<f64>, y: impl Into<f64>, z: impl Into<f64>) -> Self {
         Vector([x.into(), y.into(), z.into(), 0.0])
     }
@@ -167,22 +167,22 @@ impl Vector {
         self.0[3]
     }
 
-    // Magnitude of Vector.
+    /// Magnitude of Vector.
     pub fn magnitude(&self) -> f64 {
         vec4_len(self.0)
     }
 
-    // Normalize Vector.
+    /// Normalize Vector.
     pub fn normalize(&self) -> Self {
         Vector(vec4_normalized(self.0))
     }
 
-    // Dot product of: Vector * Vector.
+    /// Dot product of: Vector * Vector.
     pub fn dot(&self, rhs: &Self) -> f64 {
         vec4_dot(self.0, rhs.0)
     }
 
-    // Cross product: Vector x Vector.
+    /// Cross product: Vector x Vector.
     pub fn cross(&self, rhs: &Self) -> Self {
         let cross = vec3_cross([self.x(), self.y(), self.z()], [rhs.x(), rhs.y(), rhs.z()]);
         Vector::new(cross[0], cross[1], cross[2])
@@ -194,7 +194,7 @@ mod tests {
     use super::*;
     use crate::approximate_equation::ApproximateEq;
 
-    // A tuple with w=1.0 is a point.
+    /// A tuple with w=1.0 is a point.
     #[test]
     fn new_point() {
         let p = Point::new(4.3, -4.2, 3.1);
@@ -209,7 +209,7 @@ mod tests {
         assert_eq!(p_1.z(), 6.0);
     }
 
-    // A tuple with w=0 is a vector.
+    /// A tuple with w=0 is a vector.
     #[test]
     fn new_vector() {
         let v = Vector::new(4.3, -4.2, 3.1);
@@ -224,21 +224,21 @@ mod tests {
         assert_eq!(v_1.z(), 9.0);
     }
 
-    // Required by assert_eq for comparing equality of Point and approximating using Epsilon.
+    /// Required by assert_eq for comparing equality of Point and approximating using Epsilon.
     impl PartialEq for Point {
         fn eq(&self, other: &Self) -> bool {
             self.approx_eq(other)
         }
     }
 
-    // Required by assert_eq for comparing equality of Vector and approximating using Epsilon.
+    /// Required by assert_eq for comparing equality of Vector and approximating using Epsilon.
     impl PartialEq for Vector {
         fn eq(&self, other: &Self) -> bool {
             self.approx_eq(other)
         }
     }
 
-    // Adding two tuples.
+    /// Adding two tuples.
     #[test]
     fn add_tuples() {
         let p = Point::new(3.0, -2.0, 5.0);
@@ -248,7 +248,7 @@ mod tests {
         assert_eq!(v + v, Vector::new(-4.0, 6.0, 2.0));
     }
 
-    // Subtracting two points.
+    /// Subtracting two points.
     #[test]
     fn substract_tuples() {
         let p1 = Point::new(3.0, 2.0, 1.0);
@@ -257,7 +257,7 @@ mod tests {
         assert_eq!(p1 - p2, Vector::new(-2.0, -4.0, -6.0));
     }
 
-    // Subtracting a vector from a point.
+    /// Subtracting a vector from a point.
     #[test]
     fn substract_vector_from_point() {
         let p = Point::new(3.0, 2.0, 1.0);
@@ -265,7 +265,7 @@ mod tests {
         assert_eq!(p - v, Point::new(-2.0, -4.0, -6.0));
     }
 
-    // Subtracting a vector from the zero vector.
+    /// Subtracting a vector from the zero vector.
     #[test]
     fn sub_vec_from_zero() {
         let zero = Vector::new(0.0, 0.0, 0.0);
@@ -273,14 +273,14 @@ mod tests {
         assert_eq!(zero - v, Vector::new(-1.0, 2.0, -3.0));
     }
 
-    // Negating a tuple.
+    /// Negating a tuple.
     #[test]
     fn negating_tuple() {
         let a = Vector::new(1.0, -2.0, 3.0);
         assert_eq!(-a, Vector::new(-1.0, 2.0, -3.0));
     }
 
-    // Multiplying a tuple by a scalar.
+    /// Multiplying a tuple by a scalar.
     #[test]
     fn multiply_scalar_tuple() {
         let a = Vector::new(1.0, -2.0, 3.0);
@@ -288,7 +288,7 @@ mod tests {
         assert_eq!(3.5 * a, Vector::new(3.5, -7, 10.5))
     }
 
-    // Multiplying a tuple by a fraction.
+    /// Multiplying a tuple by a fraction.
     #[test]
     fn multiply_tuple_fraction() {
         let a = Vector::new(1, -2, 3);
@@ -296,56 +296,56 @@ mod tests {
         assert_eq!(0.5 * a, Vector::new(0.5, -1, 1.5));
     }
 
-    // Dividing a tuple by a scalar.
+    /// Dividing a tuple by a scalar.
     #[test]
     fn divide_tuple_scalar() {
         let a = Vector::new(1, -2, 3);
         assert_eq!(a / 2.0, Vector::new(0.5, -1, 1.5));
     }
 
-    // Computing the magnitude of vector(1, 0, 0).
+    /// Computing the magnitude of vector(1, 0, 0).
     #[test]
     fn magnitude_vector_100() {
         let v = Vector::new(1, 0, 0);
         assert_eq!(v.magnitude(), 1.0);
     }
 
-    // Computing the magnitude of vector(0, 1, 0).
+    /// Computing the magnitude of vector(0, 1, 0).
     #[test]
     fn magnitude_vector_010() {
         let v = Vector::new(0, 1, 0);
         assert_eq!(v.magnitude(), 1.0);
     }
 
-    // Computing the magnitude of vector(0, 0, 1).
+    /// Computing the magnitude of vector(0, 0, 1).
     #[test]
     fn magnitude_vector_001() {
         let v = Vector::new(0, 1, 0);
         assert_eq!(v.magnitude(), 1.0);
     }
 
-    // Computing the magnitude of vector(1, 2, 3).
+    /// Computing the magnitude of vector(1, 2, 3).
     #[test]
     fn magnitude_vector_123() {
         let v = Vector::new(1, 2, 3);
         assert_eq!(v.magnitude(), 14f64.sqrt());
     }
 
-    // Computing the magnitude of vector(-1, -2, -3).
+    /// Computing the magnitude of vector(-1, -2, -3).
     #[test]
     fn magnitude_vector_negative_123() {
         let v = Vector::new(-1, -2, -3);
         assert_eq!(v.magnitude(), 14.0f64.sqrt());
     }
 
-    // Normalizing vector(4, 0, 0) gives (1, 0, 0).
+    /// Normalizing vector(4, 0, 0) gives (1, 0, 0).
     #[test]
     fn normalize_vector_400() {
         let v = Vector::new(4, 0, 0);
         assert_eq!(v.normalize(), Vector::new(1, 0, 0));
     }
 
-    // Normalizing vector(1, 2, 3).
+    /// Normalizing vector(1, 2, 3).
     #[test]
     fn normalize_vector_123() {
         let v = Vector::new(1, 2, 3);
@@ -355,14 +355,14 @@ mod tests {
         );
     }
 
-    // The magnitude of a normalized vector.
+    /// The magnitude of a normalized vector.
     #[test]
     fn magnitude_nomalized_vector() {
         let v = Vector::new(1, 2, 3);
         assert_eq!(v.normalize().magnitude(), 1.0);
     }
 
-    // The dot product of two tuples.
+    /// The dot product of two tuples.
     #[test]
     fn dot_product() {
         let a = Vector::new(1, 2, 3);
@@ -370,7 +370,7 @@ mod tests {
         assert_eq!(a.dot(&b), 20.0);
     }
 
-    // The cross product of two vectors.
+    /// The cross product of two vectors.
     #[test]
     fn cross_product() {
         let a = Vector::new(1, 2, 3);
