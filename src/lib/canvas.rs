@@ -50,6 +50,107 @@ impl Canvas {
             .next()
             .unwrap()[x as usize]
     }
+
+    pub fn canvas_to_ppm(&self, vec: &mut Vec<u8>) -> std::io::Result<()> {
+        let mut line_guard = MaxWidthWriter::new(70, vec);
+        self.write_ppm_header(&mut line_guard)?;
+
+        Ok(())
+    }
+
+    /// The parameter struct MaxWidthWriter is replaced by impl std::io::Write
+    /// since Vec<u8> can be replaced by T: std::io::Write for the member of the struct definition.
+    // fn write_ppm_header(&self, line_guard: &mut MaxWidthWriter) -> std::io::Result<()> {
+    fn write_ppm_header(&self, line_guard: &mut impl std::io::Write) -> std::io::Result<()> {
+        write!(line_guard, "P3\n{} {}\n255\n", self.width, self.height)
+    }
+}
+
+// struct MaxWidthWriter<'a> {
+//     writer_vec: &'a mut Vec<u8>,
+//     line_buffer: Vec<u8>,
+//     number_columns: usize,
+// }
+
+/// MaxWidthWrite with generics.
+/// Vec<u8> replaced by T: std::io::Write
+struct MaxWidthWriter<'a, T>
+where
+    T: std::io::Write,
+{
+    writer_vec: &'a mut T,
+    line_buffer: Vec<u8>,
+    number_columns: usize,
+}
+
+// impl<'a> MaxWidthWriter<'a> {
+//     fn new(number_columns: usize, writer_vec: &'a mut Vec<u8>) -> Self {
+//         MaxWidthWriter {
+//             writer_vec,
+//             line_buffer: Vec::<u8>::new(),
+//             number_columns,
+//         }
+//     }
+
+impl<'a, T> MaxWidthWriter<'a, T>
+where
+    T: std::io::Write,
+{
+    // fn new(number_columns: usize, writer_vec: &'a mut Vec<u8>) -> Self {
+    fn new(number_columns: usize, writer_vec: &'a mut T) -> Self {
+        MaxWidthWriter {
+            writer_vec,
+            line_buffer: Vec::<u8>::new(),
+            number_columns,
+        }
+    }
+
+    pub fn flush_partial(&mut self, x: usize) -> std::io::Result<()> {
+        self.line_buffer[x] = b'\n';
+        self.writer_vec.write(&self.line_buffer[..=x])?;
+        // println!(
+        //     "Before: {:?}",
+        //     String::from_utf8(Vec::from(self.line_buffer.clone())).unwrap()
+        // );
+        self.line_buffer.copy_within(x + 1.., 0);
+        // println!(
+        //     "after: {:?}",
+        //     String::from_utf8(Vec::from(self.line_buffer.clone())).unwrap()
+        // );
+        self.line_buffer.truncate(self.line_buffer.len() - x - 1);
+        Ok(())
+    }
+}
+
+/// std::io::Write implementation required on MaxWidthWriter to satisfy: the write! macro.
+impl<'a, T> std::io::Write for MaxWidthWriter<'a, T>
+where
+    T: std::io::Write,
+{
+    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+        println!("buf: {:?}", String::from_utf8(Vec::from(buf)).unwrap());
+        self.line_buffer.extend_from_slice(buf);
+
+        while let Some(x) = self.line_buffer.iter().position(|&pos| pos == b'\n') {
+            // println!(
+            //     "before: {:?}",
+            //     String::from_utf8(Vec::from(self.line_buffer.clone())).unwrap()
+            // );
+            self.flush_partial(x)?;
+            // println!(
+            //     "after: {:?}",
+            //     String::from_utf8(Vec::from(self.line_buffer.clone())).unwrap()
+            // );
+        }
+
+        Ok(buf.len())
+    }
+
+    fn flush(&mut self) -> std::io::Result<()> {
+        self.writer_vec.write(&self.line_buffer)?;
+        self.line_buffer.clear();
+        self.writer_vec.flush()
+    }
 }
 
 #[cfg(test)]
@@ -74,5 +175,21 @@ mod tests {
         let red = Color::new(1, 0, 0);
         c.write_pixel(2, 3, red);
         assert_eq!(c.pixel_at(2, 3), red);
+    }
+
+    /// Constructing the PPM header.
+    #[test]
+    fn construct_ppm_header() {
+        let c = Canvas::new(5, 3);
+        let mut buf = Vec::<u8>::new();
+        c.canvas_to_ppm(&mut buf);
+        let ppm = String::from_utf8(buf).unwrap();
+        assert_eq!(
+            ppm.lines().take(3).collect::<Vec<_>>().join("\n"),
+            "\
+P3
+5 3
+255"
+        );
     }
 }
