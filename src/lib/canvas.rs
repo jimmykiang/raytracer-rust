@@ -1,6 +1,7 @@
 use crate::color::Color;
 use std::iter::Copied;
-use std::slice::Iter;
+use std::ptr::write;
+use std::slice::{ChunksExact, Iter};
 
 pub struct Canvas {
     width: u32,
@@ -38,8 +39,13 @@ impl Canvas {
     ///
     /// fn rows_mut(&mut self) -> ChunksExactMut<'_, Color> {
     ///
-    fn rows_mut(&mut self) -> impl Iterator<Item = &mut [Color]> + '_ {
+    fn rows_mut(&mut self) -> impl Iterator<Item = &mut [Color]> {
         self.data.chunks_exact_mut(self.width as usize)
+    }
+
+    // pub fn rows(&self) -> ChunksExact<'_, Color> {
+    pub fn rows(&self) -> impl Iterator<Item = &[Color]> {
+        self.data.chunks_exact(self.width as usize)
     }
 
     /// Returns the Color from a specific x, y coordinate in the Canvas.
@@ -54,6 +60,7 @@ impl Canvas {
     pub fn canvas_to_ppm(&self, vec: &mut Vec<u8>) -> std::io::Result<()> {
         let mut line_guard = MaxWidthWriter::new(70, vec);
         self.write_ppm_header(&mut line_guard)?;
+        self.write_ppm_data(&mut line_guard);
 
         Ok(())
     }
@@ -63,6 +70,22 @@ impl Canvas {
     // fn write_ppm_header(&self, line_guard: &mut MaxWidthWriter) -> std::io::Result<()> {
     fn write_ppm_header(&self, line_guard: &mut impl std::io::Write) -> std::io::Result<()> {
         write!(line_guard, "P3\n{} {}\n255\n", self.width, self.height)
+    }
+    // fn write_ppm_data(&self, line_guard: &mut MaxWidthWriter<Vec<u8>>) {
+    fn write_ppm_data(&self, line_guard: &mut impl std::io::Write) -> std::io::Result<()> {
+        for row in self.rows() {
+            for (i, pixel) in row.iter().enumerate() {
+                if i > 0 {
+                    write!(line_guard, " ")?;
+                }
+                let (r, g, b) = pixel.to_u8();
+                write!(line_guard, "{}", r)?;
+                write!(line_guard, " {}", g)?;
+                write!(line_guard, " {}", b)?;
+            }
+            write!(line_guard, "\n")?;
+        }
+        Ok(())
     }
 }
 
@@ -128,7 +151,7 @@ where
     T: std::io::Write,
 {
     fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
-        println!("buf: {:?}", String::from_utf8(Vec::from(buf)).unwrap());
+        // println!("buf: {:?}", String::from_utf8(Vec::from(buf)).unwrap());
         self.line_buffer.extend_from_slice(buf);
 
         while let Some(x) = self.line_buffer.iter().position(|&pos| pos == b'\n') {
@@ -190,6 +213,30 @@ mod tests {
 P3
 5 3
 255"
+        );
+    }
+
+    /// Constructing the PPM pixel data.
+    #[test]
+    fn ppm_pixel_data() {
+        let mut c = Canvas::new(5, 3);
+        let c1 = Color::new(1.5, 0, 0);
+        let c2 = Color::new(0, 0.5, 0);
+        let c3 = Color::new(-0.5, 0, 1);
+
+        c.write_pixel(0, 0, c1);
+        c.write_pixel(2, 1, c2);
+        c.write_pixel(4, 2, c3);
+
+        let mut buf = Vec::<u8>::new();
+        c.canvas_to_ppm(&mut buf).unwrap();
+        let ppm = String::from_utf8(buf).unwrap();
+        assert_eq!(
+            ppm.lines().skip(3).take(3).collect::<Vec<_>>().join("\n"),
+            "\
+255 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 128 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 255"
         );
     }
 }

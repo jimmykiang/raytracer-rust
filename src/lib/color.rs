@@ -52,7 +52,24 @@ impl Color {
         Color::new(
             self.red() * rhs.red(),
             self.green() * rhs.green(),
-            self.blue() * rhs.blue,
+            self.blue() * rhs.blue(),
+        )
+    }
+
+    pub fn to_u8(&self) -> (u8, u8, u8) {
+        let color = self.clamp(0.0, 1.0);
+        (
+            (color.red() * 255.0).round() as u8,
+            (color.green() * 255.0).round() as u8,
+            (color.blue() * 255.0).round() as u8,
+        )
+    }
+
+    pub fn clamp(self, floor: f64, ceiling: f64) -> Self {
+        Color::new(
+            self.red().max(floor).min(ceiling),
+            self.green().max(floor).min(ceiling),
+            self.blue().max(floor).min(ceiling),
         )
     }
 }
