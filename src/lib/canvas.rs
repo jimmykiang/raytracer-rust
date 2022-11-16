@@ -1,7 +1,6 @@
 use crate::color::Color;
 use std::iter::Copied;
-use std::ptr::write;
-use std::slice::{ChunksExact, Iter};
+use std::slice::Iter;
 
 pub struct Canvas {
     width: u32,
@@ -34,6 +33,12 @@ impl Canvas {
         self.rows_mut().skip(y as usize).next().unwrap()[x as usize] = color;
     }
 
+    pub fn set_all_pixel(&mut self, c: Color) {
+        // self.data.clear();
+        // self.data.resize((self.width * self.height) as usize, c);
+        self.data = vec![c; (self.width * self.height) as usize]
+    }
+
     /// Returns an iterator which returns entire Y rows of the canvas.
     /// Same as:
     ///
@@ -60,7 +65,7 @@ impl Canvas {
     pub fn canvas_to_ppm(&self, vec: &mut Vec<u8>) -> std::io::Result<()> {
         let mut line_guard = MaxWidthWriter::new(70, vec);
         self.write_ppm_header(&mut line_guard)?;
-        self.write_ppm_data(&mut line_guard);
+        self.write_ppm_data(&mut line_guard)?;
 
         Ok(())
     }
@@ -143,6 +148,31 @@ where
         self.line_buffer.truncate(self.line_buffer.len() - x - 1);
         Ok(())
     }
+
+    pub fn flush_line(&mut self) -> std::io::Result<()> {
+        if self.line_buffer.len() < self.number_columns {
+            return Ok(());
+        }
+
+        let mut i = self.number_columns;
+        loop {
+            if self.line_buffer[i] == b' ' {
+                return self.flush_partial(i);
+            }
+            if i == 0 {
+                break;
+            }
+            i -= 1;
+        }
+
+        for i in self.number_columns..self.line_buffer.len() {
+            if self.line_buffer[i] == b' ' {
+                return self.flush_partial(i);
+            }
+        }
+
+        Ok(())
+    }
 }
 
 /// std::io::Write implementation required on MaxWidthWriter to satisfy: the write! macro.
@@ -164,6 +194,10 @@ where
             //     "after: {:?}",
             //     String::from_utf8(Vec::from(self.line_buffer.clone())).unwrap()
             // );
+        }
+
+        while self.line_buffer.len() > self.number_columns {
+            self.flush_line()?;
         }
 
         Ok(buf.len())
@@ -237,6 +271,24 @@ P3
 255 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 128 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 255"
+        );
+    }
+
+    /// Splitting long lines in PPM files.
+    #[test]
+    fn ppm_split_line() {
+        let mut c = Canvas::new(10, 2);
+        c.set_all_pixel(Color::new(1, 0.8, 0.6));
+        let mut buf = vec![];
+        c.canvas_to_ppm(&mut buf).unwrap();
+        let ppm = String::from_utf8(buf).unwrap();
+        assert_eq!(
+            ppm.lines().skip(3).take(4).collect::<Vec<_>>().join("\n"),
+            "\
+255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204
+153 255 204 153 255 204 153 255 204 153 255 204 153
+255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204
+153 255 204 153 255 204 153 255 204 153 255 204 153"
         );
     }
 }
