@@ -47,8 +47,9 @@ impl Canvas {
     /// or:
     ///
     ///fn rows_mut(&mut self) -> Box<dyn Iterator<Item = &mut [Color]> + '_> {
+    /// Box::new(self.data.chunks_exact_mut(self.width as usize))
     fn rows_mut(&mut self) -> impl Iterator<Item = &mut [Color]> {
-        Box::new(self.data.chunks_exact_mut(self.width as usize))
+        self.data.chunks_exact_mut(self.width as usize)
     }
 
     // pub fn rows(&self) -> ChunksExact<'_, Color> {
@@ -242,7 +243,7 @@ mod tests {
     fn construct_ppm_header() {
         let c = Canvas::new(5, 3);
         let mut buf = Vec::<u8>::new();
-        c.canvas_to_ppm(&mut buf);
+        c.canvas_to_ppm(&mut buf).unwrap();
         let ppm = String::from_utf8(buf).unwrap();
         assert_eq!(
             ppm.lines().take(3).collect::<Vec<_>>().join("\n"),
@@ -298,7 +299,7 @@ P3
     /// PPM files end with a newline character.
     #[test]
     fn ppm_newline_character() {
-        let mut c = Canvas::new(5, 3);
+        let c = Canvas::new(5, 3);
         let mut buf = Vec::<u8>::new();
         c.canvas_to_ppm(&mut buf).unwrap();
         assert_eq!(buf.last(), Some(&b'\n'));
