@@ -9,6 +9,14 @@ pub struct Point(Vector4<f64>);
 
 impl Point {
     /// New Point and enable conversion into f64.
+    /// same as:
+    /// #
+    /// pub fn new<T: Into<f64>>(x: T, y: T, z: T) -> Self {
+    /// But then all passed arguments have to be the same int or f64,
+    /// This works:
+    /// let p_1 = Point::new(4, 5, 6);
+    /// but mixed types will fail:
+    /// let p_1 = Point::new(4, 5.0, 6);
     pub fn new(x: impl Into<f64>, y: impl Into<f64>, z: impl Into<f64>) -> Self {
         Point([x.into(), y.into(), z.into(), 1.0])
     }

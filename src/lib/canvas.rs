@@ -44,8 +44,11 @@ impl Canvas {
     ///
     /// fn rows_mut(&mut self) -> ChunksExactMut<'_, Color> {
     ///
+    /// or:
+    ///
+    ///fn rows_mut(&mut self) -> Box<dyn Iterator<Item = &mut [Color]> + '_> {
     fn rows_mut(&mut self) -> impl Iterator<Item = &mut [Color]> {
-        self.data.chunks_exact_mut(self.width as usize)
+        Box::new(self.data.chunks_exact_mut(self.width as usize))
     }
 
     // pub fn rows(&self) -> ChunksExact<'_, Color> {
@@ -290,5 +293,14 @@ P3
 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204
 153 255 204 153 255 204 153 255 204 153 255 204 153"
         );
+    }
+
+    /// PPM files end with a newline character.
+    #[test]
+    fn ppm_newline_character() {
+        let mut c = Canvas::new(5, 3);
+        let mut buf = Vec::<u8>::new();
+        c.canvas_to_ppm(&mut buf).unwrap();
+        assert_eq!(buf.last(), Some(&b'\n'));
     }
 }

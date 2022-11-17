@@ -9,6 +9,8 @@ pub struct Color {
 
 impl Color {
     pub fn new(r: impl Into<f64>, g: impl Into<f64>, b: impl Into<f64>) -> Self {
+        // Arguments as mixed types of int and f64 together will fail.
+        // pub fn new<T: Into<f64>>(r: T, g: T, b: T) -> Self {
         Color {
             red: r.into(),
             green: g.into(),
