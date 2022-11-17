@@ -46,7 +46,7 @@ fn main() {
 
     let ppm = String::from_utf8(buf).unwrap();
 
-    let file = OpenOptions::new()
+    let _ = OpenOptions::new()
         .read(true)
         .write(true)
         .create(true)
@@ -54,7 +54,7 @@ fn main() {
 
     fs::write("ppm/chapter-02.ppm", ppm).unwrap();
 
-    fn tick(env: &&Environment, p: &Projectile) -> Projectile {
+    fn tick(env: &Environment, p: &Projectile) -> Projectile {
         let position = p.position + (p.velocity);
         let velocity = p.velocity + env.gravity + env.wind;
 
@@ -71,7 +71,7 @@ fn main() {
 
             while current_projectile.position.y() >= 0.0 {
                 projectile_trajectory.push(current_projectile.clone());
-                current_projectile = tick(&self, &current_projectile);
+                current_projectile = tick(self, &current_projectile);
             }
 
             projectile_trajectory
